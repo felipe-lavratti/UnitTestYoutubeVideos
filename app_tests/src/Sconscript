@@ -9,8 +9,8 @@ r = {
 
 src = env.FindFiles('./', '*.c')
 src = env.FindFiles('./', '*.cpp')
-lib = env.StaticLibrary('app_tests', src)
+objs = env.SourceToObjects(src)
 
-Depends(env.SourceToObjects(src), env['CPPINCLUDES'])
-r['libs'].extend(lib)
+Depends(objs, env['CPPINCLUDES'])
+r['objs'].extend(objs)
 Return('r')

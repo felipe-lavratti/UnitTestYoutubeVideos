@@ -94,7 +94,8 @@ class HostTestsPlatform(PlatformBaseClass):
                     '-Wall', '-Wextra', '-Wswitch-default', '-Wswitch-enum', '-Wconversion', '-Wno-long-long'],
                 CPPDEFINES = ['APP_ENABLE_DEBUG'],
                 LIBS = ['pthread'],
-                CPPINCLUDES = []
+                CPPINCLUDES = [],
+                OBJS = []
         )
 
 instance = HostTestsPlatform()

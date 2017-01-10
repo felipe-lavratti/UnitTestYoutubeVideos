@@ -9,7 +9,7 @@
  */
 
 
-TEST_GROUP(FirstTestGroup)
+TEST_GROUP(Example)
 {
     void setup ()
     {
@@ -21,9 +21,8 @@ TEST_GROUP(FirstTestGroup)
     }
 };
 
-TEST(FirstTestGroup, FirstTest)
+TEST(Example, FirstTest)
 {
    int x = 1;
    CHECK_EQUAL(1, x);
 }
-

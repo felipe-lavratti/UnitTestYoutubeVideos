@@ -28,7 +28,7 @@ class Lpc1769Platform(PlatformBaseClass):
         return False
 
     def CppUTestExtensionsEnabled (self):
-        return False
+        return True
 
     def PostBuildTargets(self):
         #
@@ -75,7 +75,8 @@ class Lpc1769Platform(PlatformBaseClass):
                          '-print-memory-usage',
                          '-mcpu=cortex-m3',
                          '-mthumb'
-                         ]
+                         ],
+            OBJS = []
         )
 
         lpc17xx_toolchain_path = '/usr/local/lpcxpresso_8.2.2_650/lpcxpresso/tools/bin'
