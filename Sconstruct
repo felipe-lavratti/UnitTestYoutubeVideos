@@ -10,6 +10,7 @@
 
 # Available targets and its Sconscripts
 available_targets = dict(
+    lpc1769_board = 'dependencies/lpc1769_board/Sconscript',
     cpputest = 'dependencies/cpputest/Sconscript',
     app = 'app/Sconscript',
     app_tests = 'app_tests/Sconscript',

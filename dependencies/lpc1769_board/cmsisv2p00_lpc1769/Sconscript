@@ -4,7 +4,8 @@ cmsis_exports = {
     'CPPPATH' : [ Dir('./inc') ],
 }
 
-for name, plat in platforms.items():
+for plat in platforms:
+    name = plat.Name()
     # Modify imported environment to be used by the parent script
     plat.Env().Prepend(**cmsis_exports)
     env = plat.Env().Clone()

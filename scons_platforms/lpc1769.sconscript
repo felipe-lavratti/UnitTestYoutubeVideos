@@ -16,6 +16,7 @@ class Lpc1769Platform(PlatformBaseClass):
 
     def BuildList(self):
         return [
+            'lpc1769_board',
             'app',
             'lpc1769_app',
             'cpputest',

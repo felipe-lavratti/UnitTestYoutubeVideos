@@ -4,7 +4,7 @@ name = 'lpc1769_app'
 
 for plat in platforms:
     env = plat.Env().Clone()
-    build_dir = './build/'
+    build_dir = './build/' + plat.Name()
     exe = env.SConscript('./src/Sconscript', exports = ['name','env'], variant_dir = build_dir, duplicate=0)
 
     # Add build results symbols to the platform

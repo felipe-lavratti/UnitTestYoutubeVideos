@@ -14,6 +14,10 @@ tests_report
 coverage_report
 *.pyc
 *.pyo
+*.a
+*.map
+host_tests
+*.hex
 
 # Ignore downloaded cpputest
 cpputest-3.8.tar.gz

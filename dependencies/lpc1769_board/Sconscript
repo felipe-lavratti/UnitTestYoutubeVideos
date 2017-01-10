@@ -5,7 +5,7 @@ basic_exports = {
     'LINKFLAGS' : [ '-T', File('./lpc1769.ld') ]
 }
 
-for name, plat in platforms.items():
+for plat in platforms:
     # Modify imported environment to be used by the parent script
     plat.Env().Prepend(**basic_exports)
 

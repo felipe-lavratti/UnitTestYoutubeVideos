@@ -4,7 +4,7 @@ Import('env')
 Import('name')
 
 env = env.Clone()
-map_file = Dir('../').path + '/' + name + '.map'
+map_file = './' + name + '.map'
 env.Append(LINKFLAGS = ['-Xlinker', '-Map=' + map_file])
 
 sources = env.FindFiles('./', '*.c')
@@ -12,6 +12,6 @@ sources.extend (env.FindFiles('./', '*.cpp'))
 objects = env.SourceToObjects(sources)
 Depends(objects, env['CPPINCLUDES'])
 
-exes = env.Program(['../' + name, map_file], sources)
+exes = env.Program([name, map_file], sources)
 exe = {'exe': exes[0], 'map': exes[1]}
 Return('exe')
