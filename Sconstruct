@@ -1,0 +1,167 @@
+#!python
+
+# Overview of the build system
+# - All global configurations goes in this file,
+# - Each platforms created contains configurations and environment
+# - Each project is called passing platforms.
+# - For each platform one build will run, always in the 'build' folder.
+# - Projects are expected to append data to platform enviroments when
+#   necessary, such as includes, defines, libraries, etc.
+
+# Available targets and its Sconscripts
+available_targets = dict(
+    cpputest = 'dependencies/cpputest/Sconscript',
+    app = 'app/Sconscript',
+    app_tests = 'app_tests/Sconscript',
+    host_tests = 'plat_host_tests/Sconscript',
+    lpc1769_app = 'plat_lpc1769_app/Sconscript',
+    lpc1769_tests = 'plat_lpc1769_tests/Sconscript'
+)
+
+#
+# First we add our custom Functions to a default enviroment and configure it
+import os
+import fnmatch
+default_env = Environment()
+
+# Enable color terminal if available
+if 'TERM' in os.environ.keys():
+    default_env['ENV']['TERM'] = os.environ['TERM']
+
+# Add a FindFiles function to help Programs to search for code
+def FindFiles(self, path, glob):
+    matches = []
+    matches.extend(Glob(path + '/' + glob))
+    matches.extend(Glob(path + '/*/' + glob))
+    matches.extend(Glob(path + '/*/*/' + glob))
+    matches.extend(Glob(path + '/*/*/*/' + glob))
+    matches.extend(Glob(path + '/*/*/*/*/' + glob))
+    matches.extend(Glob(path + '/*/*/*/*/*/' + glob))
+    return matches
+default_env.AddMethod(FindFiles)
+
+# Transform a multiline string into a list of Files
+def MultiLineStringToFiles(self, multiline_string):
+    r = []
+    for f in multiline_string.split('\n'):
+        if len(f) > 0:
+            r.append(File('./' + f))
+    return r
+default_env.AddMethod(MultiLineStringToFiles)
+
+# Transform a list of C source into Objects
+def SourceToObjects(self, source_list):
+    r = []
+    for s in source_list:
+        s_path = s.path
+        o_path = s_path.replace('.CPP', '.o').replace('.C', '.o').replace('.cpp', '.o').replace('.c', '.o')
+        o = File('#' + o_path)
+        r.append(o)
+    return r
+default_env.AddMethod(SourceToObjects)
+
+# Transform a list of Objects into GCDA and GDNO
+def ObjectsToGcov(self, source_list):
+    r = []
+    for s in source_list:
+        s_path = s.path
+        da_path = s_path.replace('.o', '.gcda')
+        da = File('#' + da_path)
+        no_path = s_path.replace('.o', '.gcno')
+        no = File('#' + no_path)
+        r.append(da)
+        r.append(no)
+    return r
+default_env.AddMethod(ObjectsToGcov)
+
+def EnablePlatformsFor(build_name, available_platforms):
+    r = []
+    for plat in available_platforms:
+        if build_name in plat.BuildList():
+            r.append(plat);
+    return r
+
+def FindAvailablePlatforms():
+    r = []
+    for f in Glob('scons_platforms/*.sconscript'):
+        plat = SConscript(f, exports = 'default_env')
+        r.append(plat)
+    return r;
+
+available_platforms = FindAvailablePlatforms()
+
+for plat in available_platforms:
+    platforms = [plat]
+
+    for name in plat.BuildList():
+        if name in available_targets.keys():
+            SConscript(available_targets[name], exports ='platforms')
+
+            if name == 'cpputest':
+                if plat.ProfileEnabled():
+                    plat.Env().Append (
+                        CFLAGS = ['-fprofile-arcs', '-ftest-coverage'],
+                        CXXFLAGS = ['-fprofile-arcs', '-ftest-coverage'],
+                        LIBS = ['gcov']
+                    )
+
+    # # Build CppUTest libraries for each platforms
+    # platforms = EnablePlatformsFor('cpputest', available_platforms)
+    # cpputest = SConscript('dependencies/cpputest/Sconscript', exports ='platforms')
+    #
+    # # Enable GNU Coverage for the next builds
+    # for plat in available_platforms:
+    #     if plat.ProfileEnabled():
+    #         plat.Env().Append(
+    #             CFLAGS = ['-fprofile-arcs', '-ftest-coverage'],
+    #             CXXFLAGS = ['-fprofile-arcs', '-ftest-coverage'],
+    #             LIBS = ['gcov']
+    #         )
+    #
+    # # Build app as library
+    # platforms = EnablePlatformsFor('app', available_platforms)
+    # SConscript('app/Sconscript', exports ='platforms')
+    #
+    # # Build app_tests library
+    # platforms = EnablePlatformsFor('app_tests', available_platforms)
+    # SConscript('app_tests/Sconscript', exports ='platforms')
+    #
+    # # Build Platforms
+    # platforms = EnablePlatformsFor('host_tests', available_platforms)
+    # SConscript('plat_host_tests/Sconscript', exports ='platforms')
+    # #
+    # # platforms = EnablePlatformsFor('lpc1769_app', available_platforms)
+    # # SConscript('platform_lpc1769/lpc1769_app/Sconscript', exports ='platforms')
+    # #
+    # # platforms = EnablePlatformsFor('lpc1769_test', available_platforms)
+    # # SConscript('platform_lpc1769/lpc1769_test/Sconscript', exports ='platforms')
+
+# Create extra targets for each platform
+for p in available_platforms:
+    p.PostBuildTargets()
+
+# Creating root target for each platform
+for plat in available_platforms:
+    t = Command (target=plat.Name(), source='', action='@echo Built default targets for $TARGET')
+    for target in plat.TargetNameList():
+        if isinstance(target, plat.Default):
+            Depends(t, str(target))
+
+# printing targets
+def PrintHelp(target, source, env):
+    print
+    print "Usage:"
+    print " scons -Q <target name> "
+    print
+    print "Available targets ([d]efault targets for platform)"
+    for plat in available_platforms:
+        print '\t' + plat.Name() + ':'
+        for target in plat.TargetNameList():
+            if isinstance(target, plat.Default):
+                d = '[d] '
+            else:
+                d = '    '
+            print '\t\t' + d + str(target)
+
+none = Command ('none', '', PrintHelp)
+Default(none)

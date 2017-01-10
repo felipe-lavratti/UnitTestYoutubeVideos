@@ -1,0 +1,15 @@
+Import('platforms')
+
+for plat in platforms:
+    name = plat.Name()
+    plat.Env().Append(CPPPATH = [Dir('./includes')])
+
+    env = plat.Env().Clone()
+    build_dir = './build/' + name
+    mods = env.SConscript('./src/Sconscript', exports = 'env', variant_dir=build_dir, duplicate=0)
+
+    # Add libs and includes to parent env.
+    plat.Env().Append(LIBS = mods['libs'])
+    plat.Env().Append(LIBPATH = mods['path'])
+    plat.BuildListAddDirectory('app', Dir(build_dir))
+    plat.BuildListAddLibrary('app', mods['libs'][0])
