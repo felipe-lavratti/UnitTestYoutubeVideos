@@ -12,6 +12,6 @@ sources.extend (env.FindFiles('./', '*.cpp'))
 objects = env.SourceToObjects(sources)
 Depends(objects, env['CPPINCLUDES'])
 
-exes = env.Program([name + '.elf', map_file], sources)
+exes = env.Program([name, map_file], sources + env['OBJS'])
 exe = {'exe': exes[0], 'map': exes[1]}
 Return('exe')
