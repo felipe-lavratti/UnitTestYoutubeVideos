@@ -8,7 +8,6 @@
  * 3) Test invalid arguments
  */
 
-
 TEST_GROUP(Example)
 {
     void setup ()

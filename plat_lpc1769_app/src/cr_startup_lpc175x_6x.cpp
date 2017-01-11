@@ -361,10 +361,10 @@ void PendSV_Handler(void)
 { while(1) {}
 }
 
-__attribute__ ((section(".after_vectors")))
-void SysTick_Handler(void)
-{ while(1) {}
-}
+//__attribute__ ((section(".after_vectors")))
+//void SysTick_Handler(void)
+//{ while(1) {}
+//}
 
 //*****************************************************************************
 //

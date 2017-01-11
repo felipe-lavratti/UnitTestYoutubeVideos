@@ -8,9 +8,10 @@ r = {
 }
 
 src = env.FindFiles('./', '*.c')
-src = env.FindFiles('./', '*.cpp')
-objs = env.SourceToObjects(src)
+src.extend(env.FindFiles('./', '*.cpp'))
+objs = env.Object(src)
 
 Depends(objs, env['CPPINCLUDES'])
 r['objs'].extend(objs)
+
 Return('r')
