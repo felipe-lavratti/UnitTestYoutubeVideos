@@ -1,7 +1,9 @@
-# Ignore eclipse files
+# Ignore eclipse and atom files
 .project
 .cproject
 .settings
+.tags
+.tags1
 
 # Ignore build files and folders
 build
